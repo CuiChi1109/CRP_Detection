@@ -3,10 +3,8 @@ from msrest.authentication import CognitiveServicesCredentials
 import os
 import json
 import argparse
-# 用你的密钥和终结点初始化客户端
-# subscription_key = 'K86994496788957'
-# endpoint = 'https://api.ocr.space/parse/image'
-subscription_key = 'b614619ae5424fa2b8867a756c262673'
+
+subscription_key = os.environ["OCR_API_KEY"]
 endpoint ='https://ocr-test-cuichi-1.cognitiveservices.azure.com/'
 computervision_client = ComputerVisionClient(endpoint, CognitiveServicesCredentials(subscription_key))
 
