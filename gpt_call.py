@@ -6,7 +6,7 @@ import time
 import argparse
 import os
 
-openai.api_key = "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"
+openai.api_key = os.environ["OPENAI_API_KEY"]
 
 class GPTConversationalAgent:
     def __init__(self, model):
