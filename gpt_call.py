@@ -8,15 +8,17 @@ import os
 
 openai.api_key = os.environ["OPENAI_API_KEY"]
 
-class GPTConversationalAgent:
-    def __init__(self, model):
-        self.messages = [
-            {
-                "role": "system",
-                "content": "You are an assistant, helping people with identifying phishing websites. \
+PROM_SIMPLE = "You are an assistant, helping people with identifying phishing websites. \
                             Given the words extracted from the webpage, please tell the user if the webpage is credential-requiring or not. \
                             Please just give a score from 1-10, 1 is not credential, 10 is credential. Remember give nothing except a number. \
                             For example, if a webpage ask user about username and password, you should score it 10"
+
+class GPTConversationalAgent:
+    def __init__(self, model, prompts=PROM_SIMPLE):
+        self.messages = [
+            {
+                "role": "system",
+                "content": prompts
             }
         ]
         self.model = model
