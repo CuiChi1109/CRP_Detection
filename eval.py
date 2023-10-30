@@ -5,15 +5,15 @@ import json
 import shutil
 import argparse
 
-IMG_DIR = 'val_imgs'
+IMG_DIR = './dataset/val_imgs'
 def copy_image(img, dir):
     img_path = os.path.join(IMG_DIR, img)
     shutil.copy(img_path, dir)
 
-def eval(file, threshold):
+def eval(file, threshold, store_fail_dir=None):
     gt_dict = {}
     pred_dict = {}
-    with open('val_img_gt.json', 'r') as f:
+    with open('./dataset/val_img_gt.json', 'r') as f:
         gt_dict = json.load(f)
     with open(file, 'r') as f:
         pred_dict = json.load(f)
@@ -44,19 +44,25 @@ def eval(file, threshold):
                 fp += 1
             else:
                 # print(img, gt, pred_dict[img])
-                copy_image(img, './fn_8_gpt35')
+                # copy_image(img, './fn_8_gpt35')
                 fn += 1
-
+            if store_fail_dir is not None:
+                copy_image(img, store_fail_dir)
     total = tp+tn+fp+fn
     print(f'accuracy={(tp+tn)/total}, tp={tp}, tn={tn}, fp={fp}, fn={fn}, fail={fail}')
 # print(tp, tn, fp, fn)
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-i', '--input_file', type=str, help='path to the ocr result json ', required=True)
+    parser.add_argument('-i', '--input_file', type=str, help='path to the gpt result json ', required=True)
     parser.add_argument('-t', '--threshold', type=int, help='threshold of the score ', default=8)
+    parser.add_argument('-d', '--failed_dir', type=str)
     args = parser.parse_args()
-    eval(args.input_file, args.threshold)
+    if args.failed_dir:
+        fail_dir = args.failed_dir
+    else:
+        fail_dir = None
+    eval(args.input_file, args.threshold, store_fail_dir=fail_dir)
 
 if __name__ == '__main__':
     main()
