@@ -13,7 +13,7 @@ def copy_image(img, dir):
 def eval(file, threshold, store_fail_dir=None):
     gt_dict = {}
     pred_dict = {}
-    with open('./dataset/val_img_gt.json', 'r') as f:
+    with open('./dataset/2000_gt.json', 'r') as f:
         gt_dict = json.load(f)
     with open(file, 'r') as f:
         pred_dict = json.load(f)
@@ -21,7 +21,7 @@ def eval(file, threshold, store_fail_dir=None):
     tp, tn, fp, fn, fail = 0, 0, 0, 0, 0
     for img in pred_dict.keys():
         try:
-            pred = int(pred_dict[img])
+            pred = json.loads(pred_dict[img])['CRP_score']
         except:
             fail += 1
             # print(img)
@@ -32,6 +32,8 @@ def eval(file, threshold, store_fail_dir=None):
         except Exception as e:
             print(e)
             continue
+        # if gt == 2:
+        #     continue
         if gt == pred:
             if gt == 1:
                 tp += 1

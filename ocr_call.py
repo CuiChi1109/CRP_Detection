@@ -4,6 +4,7 @@ import os
 import json
 import argparse
 from PIL import Image
+from tqdm import tqdm
 
 def get_ocr_client():
     subscription_key = os.environ["OCR_API_KEY"]
@@ -20,7 +21,7 @@ def ocr(image_path):
 def ocr_webpages(img_dir, json_file):
     print(img_dir, json_file)
     result_list = {}
-    for image in os.listdir(img_dir):
+    for image in tqdm(os.listdir(img_dir)):
         img_path = os.path.join(img_dir, image)
         try:
             ocr_result = ocr(img_path)
