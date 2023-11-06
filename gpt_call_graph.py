@@ -9,15 +9,12 @@ from gpt_call_baseline import *
 import threading
 from queue import Queue
 
-openai.api_key = os.environ["OPENAI_API_KEY"]
 
 PROM_GRAPH = "You are an assistant, helping people with identifying phishing websites. \
                             Given the texts and components extracted from the webpage, please tell the user if the webpage is credential-requiring or not. \
                             Please just give a score from 1-10, 1 is not credential, 10 is credential. Remember give nothing except a number. \
                             For example, if a webpage ask user about username and password, you should score it 10"
 
-
-# 创建一个GPTConversationalAgent的实例
 
 def target_function(queue, agent, tree, image):
     result = agent.call_gpt(tree, image)

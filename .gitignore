@@ -1,2 +1,4 @@
 dataset/*
 __pycache__/*
+fail_benign_gpt35/*
+failed_small/*

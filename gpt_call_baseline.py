@@ -1,61 +1,16 @@
-import openai
-import json
+from gpt_api import *
 from utility import *
 from tqdm import tqdm
 import time
 import argparse
 import os
 
-openai.api_key = os.environ["OPENAI_API_KEY"]
 
-PROM_SIMPLE = "You are an assistant, helping people with identifying phishing websites. \
-                            Given the words extracted from the webpage, please tell the user if the webpage is credential-requiring or not. \
-                            Please just give a score from 1-10, 1 is not credential, 10 is credential. Remember give nothing except a number. \
-                            For example, if a webpage ask user about username and password, you should score it 10"
-PROM_COMPLEX = "You are a web programmer and security expert working on detecting phishing website. Now you have a task about figuring out whether a webpage is a credential-requiring page(CRP) or not. To complete this task, follow these sub-tasks: \
-                Explicit: Analyze whether the webpage want users to give out sensitive information such as username, email, password, and credit card number.\
-                Implicit: Analyze whether there is any button or link that linked to an explicit CRP.\
-                Submit your findings as JSON-formatted output with the following keys: \
-                CRP_score: int (indicates CRP on scale of 1-10) \
-                CRP_type: int (0 for non-CRP,  1 for implicit, 2 for explicit) \
-                Phishing_score: int (indicates phishing risk on scale of 1-10) \
-                Noted, the text may not always be accurate. \
-                Example of credential-requiring: \
-                Having inputs fields about username, password, credit card number or buttons to login \
-                Offer unexpected rewards \
-                Informing the user of a missing package or additional payment required \
-                Displaying fake security warnings \
-                This is the text extracted from screenshots of webpages. \ "
-
-class GPTConversationalAgent:
-    def __init__(self, model, prompts=PROM_SIMPLE):
-        self.messages = [
-            {
-                "role": "system",
-                "content": prompts
-            }
-        ]
-        self.model = model
-
-    def call_gpt(self, text, image=None):
-        if image != None:
-            print(f'Call gpt on {image}')
-        self.messages.append({"role": "user", "content": text})
-        completion = openai.ChatCompletion.create(
-            model=self.model,
-            # model='gpt-4',
-            messages=self.messages,
-            temperature=0.0
-        )
-        response = completion.choices[0].message.content
-        # self.messages.append({"role": "assistant", "content": response})
-        self.messages.pop()     # delete the user ask
-        return response
 
 # 创建一个GPTConversationalAgent的实例
 
-def gpt_pred(input_file, output_file, input_dir, model="gpt-3.5-turbo"):
-    agent = GPTConversationalAgent(model, prompts=PROM_COMPLEX)
+def gpt_pred(input_file, output_file, input_dir, model, prompt_type):
+    agent = GPTConversationalAgent(model=model, prompts=prompts_dict[prompt_type])
 
     # with open(input_file, 'r') as f:
     #     ocr_result = json.load(f)
@@ -116,11 +71,18 @@ def gpt_pred(input_file, output_file, input_dir, model="gpt-3.5-turbo"):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-c', '--ocr_result', type=str, help='path to the ocr result json ', required=True)
-    parser.add_argument('-o', '--output_file', type=str, help='path to the output file', required=True)
-    parser.add_argument('-i', '--input_dir', type=str, help='path to the ocr result json ', required=True)
+    parser.add_argument('-c', '--ocr_result', type=str, help='path to the ocr result json ', default='ocr_result/total_ocr_result.json')
+    parser.add_argument('-o', '--output_file', type=str, help='path to the output file')
+    parser.add_argument('-i', '--input_dir', type=str, help='path to the image dir ', required=True)
+    parser.add_argument('-m', '--model', type=str, help='model name', default="gpt-3.5-turbo")
+    parser.add_argument('-p', '--prompt_type', type=str, help='prompt_type', default='simple')
     args = parser.parse_args()
-    gpt_pred(args.ocr_result, args.output_file, args.input_dir)
+
+    if not args.output_file:
+        sub_input_dir = args.input_dir.split('/')[-1]
+        args.output_file = f'gpt_result/{sub_input_dir}_{args.model}_{args.prompt_type}.json'
+
+    gpt_pred(args.ocr_result, args.output_file, args.input_dir, args.model, args.prompt_type)
 
 if __name__ == '__main__':
     main()
