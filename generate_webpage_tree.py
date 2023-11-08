@@ -65,7 +65,7 @@ def generate_webpage_tree_all(json_file):
             tree_dict[image_name] = generate_webpage_tree_single(ocr_result[image_name])
         except:
             continue
-    with open('./dataset/val_com_tree.json', 'w') as f:
+    with open('./dataset/benign_tree.json', 'w') as f:
         json.dump(tree_dict, f, indent=4)
 
-generate_webpage_tree_all('./dataset/val_coord.json')
+generate_webpage_tree_all('./dataset/benign_coord.json')
